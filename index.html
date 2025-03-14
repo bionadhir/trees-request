@@ -1,0 +1,124 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Untitled Page</title>
+<meta name="generator" content="WYSIWYG Web Builder 20 - https://www.wysiwygwebbuilder.com">
+<link href="Untitled2.css" rel="stylesheet">
+<link href="index.css" rel="stylesheet">
+</head>
+<body>
+<div id="Html1" style="position:absolute;left:122px;top:118px;width:726px;height:765px;z-index:0">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tree Planting Request</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  </head>
+<body>
+
+<div class="container">
+  <form id="treeForm">
+    <input type="text" name="name" placeholder="Name" required>
+    <input type="tel" name="phone" placeholder="Phone Number" required>
+    <input type="text" name="state" placeholder="State" required>
+    <input type="text" name="province" placeholder="Province" required>
+    <input type="text" name="address" placeholder="Address" required>
+    <input type="number" name="numberOfTrees" placeholder="Number of Trees" required>
+    <button type="submit">Send</button>
+  </form>
+  <div id="map"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+<script>
+  // Firebase configuration
+  const firebaseConfig = {
+  apiKey: "AIzaSyAtqBjlOMAKxCgbpqVZjM1V-zNa3DIS4CY",
+  authDomain: "khadra-1d2bd.firebaseapp.com",
+  databaseURL: "https://khadra-1d2bd-default-rtdb.firebaseio.com",
+  projectId: "khadra-1d2bd",
+  storageBucket: "khadra-1d2bd.appspot.com", // Corrected from firebasestorage.app
+  messagingSenderId: "112402804792",
+  appId: "1:112402804792:web:c4a035870ba3795ce876cd"
+};
+
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  // Initialize Leaflet map
+  const map = L.map('map').setView([36.369, 6.611], 13);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+
+  let selectedLocation = null;
+
+  map.on('click', (e) => {
+    if (selectedLocation) {
+  map.removeLayer(selectedLocation); // Properly remove the previous marker
+}
+
+    selectedLocation = L.marker(e.latlng).addTo(map); // Add a new marker
+    document.getElementById('treeForm').location = e.latlng;
+  });
+
+  // Form submission handler
+  document.getElementById('treeForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    // Disable the button and show "Submitting..." during processing
+    const submitButton = document.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
+    submitButton.textContent = "Submitting...";
+
+    const formData = {
+      name: e.target.name.value,
+      phone: e.target.phone.value,
+      state: e.target.state.value,
+      province: e.target.province.value,
+      address: e.target.address.value,
+      numberOfTrees: e.target.numberOfTrees.value,
+      location: selectedLocation ? selectedLocation.getLatLng() : null
+    };
+
+    fetch('https://us-central1-khadra-1d2bd.cloudfunctions.net/submitForm', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    })
+      .then(response => {
+        // Reset button state
+        submitButton.disabled = false;
+        submitButton.textContent = "Send";
+
+        if (response.ok) {
+          alert('Request submitted successfully!');
+        } else {
+          response.text().then(text => console.error('Backend error:', text));
+          alert('Submission failed. Please try again.');
+        }
+      })
+      .catch(error => {
+        // Reset button state on error
+        submitButton.disabled = false;
+        submitButton.textContent = "Send";
+        console.error('Error:', error);
+        alert('An error occurred while submitting the request.');
+      });
+  });
+</script>
+
+</body>
+</html>
+</div>
+</body>
+</html>
