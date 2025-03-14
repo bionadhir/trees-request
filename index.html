@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Untitled Page</title>
+<meta name="generator" content="WYSIWYG Web Builder 20 - https://www.wysiwygwebbuilder.com">
+<link href="Untitled2.css" rel="stylesheet">
+<link href="index.css" rel="stylesheet">
+</head>
+<body>
+<!-- <!DOCTYPE html> -->
+<div id="Html1" style="position:absolute;left:155px;top:79px;width:748px;height:529px;z-index:0">
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tree Planting Request</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    </head>
+<body>
+    <div class="form-map-container">
+        <form id="treeForm">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required><br>
+            <label for="phone">Phone:</label>
+            <input type="tel" id="phone" name="phone" required><br>
+            <label for="state">State:</label>
+            <input type="text" id="state" name="state" required><br>
+            <label for="province">Province:</label>
+            <input type="text" id="province" name="province" required><br>
+            <label for="address">Address:</label>
+            <input type="text" id="address" name="address" required><br>
+            <label for="trees">Number of Trees:</label>
+            <input type="number" id="trees" name="trees" required><br>
+            <button type="button" onclick="submitForm()">Submit</button>
+        </form>
+        <div id="map"></div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        let map;
+        let marker;
+        function initMap() {
+            map = L.map('map').setView([0, 0], 2);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            map.on('click', function(e) {
+                if (marker) {
+                    map.removeLayer(marker);
+                }
+                marker = L.marker(e.latlng).addTo(map);
+            });
+        }
+        initMap();
+
+        function submitForm() {
+            if (!marker) {
+                alert("Please place a marker on the map.");
+                return;
+            }
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const state = document.getElementById('state').value;
+            const province = document.getElementById('province').value;
+            const address = document.getElementById('address').value;
+            const trees = document.getElementById('trees').value;
+            const latitude = marker.getLatLng().lat;
+            const longitude = marker.getLatLng().lng;
+            const data = { name, phone, state, province, address, trees, latitude, longitude };
+            google.script.run.processForm(data);
+            alert("Form submitted!");
+            document.getElementById("treeForm").reset();
+            map.removeLayer(marker);
+            marker = null;
+        }
+    </script>
+</body>
+</html></div>
+</body>
+</html>
